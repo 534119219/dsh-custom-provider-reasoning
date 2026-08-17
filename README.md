@@ -1,6 +1,6 @@
-# 思度 · dsh-custom-provider-reasoning
+# dsh-custom-provider-reasoning
 
-思度（dsh-custom-provider-reasoning）：dsh host 插件，让**自定义提供方**（GUI「添加自定义提供方」创建的、pi-ai 目录之外的手写路由）的所有模型，都能在 composer 的模型选择器里选择**思考强度（推理等级）**，并且选择会真正发往线上。
+dsh host 插件：让**自定义提供方**（GUI「添加自定义提供方」创建的、pi-ai 目录之外的手写路由）的所有模型，都能在 composer 的模型选择器里选择**思考强度（推理等级）**，并且选择会真正发往线上。
 
 ## 问题背景
 

@@ -36,7 +36,8 @@ for (const [level, wire] of Object.entries(LEVELS)) {
 
 // resolveRouteModels for a hand-declared route (no catalog base): defaults
 // contextWindow 262144 / maxTokens 32768, input ["text"], cost zeroed, plus
-// the route-level compat now configured for scnet (thinkingFormat deepseek).
+// the route-level compat configured for scnet (deepseek dialect + no
+// developer role — new-api gateways reject role "developer").
 const makeModel = (id) => ({
   id,
   name: id,
@@ -49,7 +50,7 @@ const makeModel = (id) => ({
   maxTokens: 32768,
   reasoning: true,
   thinkingLevelMap: { ...thinkingLevelMap },
-  compat: { thinkingFormat: "deepseek" },
+  compat: { thinkingFormat: "deepseek", supportsDeveloperRole: false },
 });
 const MODELS = ["DeepSeek-V4-Pro", "DeepSeek-V4-Flash-0731", "DeepSeek-V4-Flash"].map(makeModel);
 

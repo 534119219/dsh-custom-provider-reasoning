@@ -99,6 +99,7 @@ llm-pi-ai:
 
 - **端点兼容性**：默认按 OpenAI 兼容 `reasoning_effort` 词汇注入。若端点不认 `reasoning_effort`，请求可能报错——这时可以在 `settings.yaml` 里把该模型的 `reasoningEfforts` 改成端点支持的拼写，或直接设 `reasoningEfforts: false` 关闭（插件不会覆盖显式声明）。
 - **方言端点**：需要 `compat.thinkingFormat`（如 deepseek / qwen / together）的端点，请在 `settings.yaml` 的路由或模型上自行配置 `compat`——插件只补 `reasoningEfforts`，不猜方言。
+- **new-api / one-api 系网关会拒绝 `developer` 角色**：pi-ai 对未知端点默认判定 `supportsDeveloperRole: true`，会把系统提示转换成 OpenAI o 系列专用的 `role: "developer"`，而 new-api 系网关（国内常见）不认这个角色，直接返回 `400 Format Error`。修复：在路由的 `compat` 里声明 `supportsDeveloperRole: false`（需要 dsh-llm-pi-ai 的 `resolveModelCompat` 透传完整 compat 字段，旧版会丢弃该键）。
 - **运行时**：插件启动即生效（写入设置后下一次请求边界生效）；新增/编辑自定义提供方无需重启。已存在的自定义提供方（如 scnet）在插件写入 `reasoningEfforts` 后**无需重启 GUI** 即可看到推理等级——设置文件被 host 热加载。重启 GUI 只用于加载插件本身（保证未来新增的自定义提供方也被自动覆盖）。
 
 ## 工作原理（代码地图）

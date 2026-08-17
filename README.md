@@ -17,6 +17,7 @@ dsh host 插件：让**自定义提供方**（GUI「添加自定义提供方」�
 插件还**感知协议类型**，自动管理路由级 `compat`：
 
 - `openai-completions`：模型 id 含 `deepseek` 的路由自动补 `compat.thinkingFormat: deepseek`（用 DeepSeek 的 `thinking` 参数方言，而不是 OpenAI 的 `reasoning_effort`）。
+- 所有 `declared` 自定义路由在 `openai-completions` 下自动补 `compat.supportsDeveloperRole: false`——因为 pi-ai 对未知端点默认判定支持 `developer` 角色，会把系统提示发成 `role: "developer"`，而 new-api/one-api 系网关不认这个角色，直接返回 400。
 - `openai-responses` / `anthropic-messages`：自动剥离 completions 专属的 `thinkingFormat` / `supportsReasoningEffort`，避免切换协议时残留无效开关导致校验报错。
 
 于是你可以在三种接口（`openai-completions` / `openai-responses` / `anthropic-messages`）之间自由切换，不用手动增删 `compat`。`reasoningEfforts` 是协议无关的：三种协议都把它物化成 `reasoning` + `thinkingLevelMap`，只是线上拼写不同（completions 发 `thinking`/`reasoning_effort`，responses 发 `reasoning: {effort}`，anthropic 发 `thinking: {type, effort/budget}`）。
@@ -100,6 +101,7 @@ llm-pi-ai:
     contextWindow: 1000000 # 缺 contextWindow 的模型补这个值；设 false 则不补
     thinkingFormat: false    # 默认 false 不写 thinkingFormat；确需 DeepSeek 方言时改成 deepseek
     defaultEffort: medium    # 路由级默认推理等级（profile.reasoning）：路由未声明时写入，已有值不覆盖；设 false 则不管
+    supportsDeveloperRole: false  # 自动为 declared 路由补 compat.supportsDeveloperRole；false=补 false（new-api 网关安全），true=补 true
     levels:
       off:                 # 留空 = 支持但不发送任何内容（端点用自己的默认）
       low: low
@@ -116,11 +118,13 @@ llm-pi-ai:
 
 `defaultEffort` 管理路由级默认推理等级（`profile.reasoning` → 模型的 `defaultEffort`）：默认 `medium`，即新自定义提供方的模型在未显式选等级时使用 Medium、选择器预选 Medium（且不再显示「Default」选项）。只在路由**未声明**时写入，已有值永不被覆盖；设 `false` 关闭该管理。
 
+`supportsDeveloperRole` 控制 `compat.supportsDeveloperRole` 的自动回填：默认 `false`，即对 `declared` 路由在 `openai-completions` 下自动补 `supportsDeveloperRole: false`（让系统提示走 `system` 角色，new-api/one-api 网关安全）；设 `true` 则补 `true`（适用于真正支持 OpenAI `developer` 角色的端点）。只在字段**缺失**时写入，已手写的值永不被覆盖。
+
 ## 注意事项
 
 - **端点兼容性**：默认按 OpenAI 兼容 `reasoning_effort` 词汇注入。若端点不认 `reasoning_effort`，请求可能报错——这时可以在 `settings.yaml` 里把该模型的 `reasoningEfforts` 改成端点支持的拼写，或直接设 `reasoningEfforts: false` 关闭（插件不会覆盖显式声明）。
 - **方言端点**：DeepSeek 系端点（模型 id 含 `deepseek`）在 `openai-completions` 下会自动补 `compat.thinkingFormat: deepseek`；其他方言（如 qwen / together）可用 `thinkingFormat` 配置改成对应值，或设 `false` 关闭自动管理后自行在 `settings.yaml` 配置。
-- **new-api / one-api 系网关会拒绝 `developer` 角色**：pi-ai 对未知端点默认判定 `supportsDeveloperRole: true`，会把系统提示转换成 OpenAI o 系列专用的 `role: "developer"`，而 new-api 系网关（国内常见）不认这个角色，直接返回 `400 Format Error`。修复：在路由的 `compat` 里声明 `supportsDeveloperRole: false`（需要 dsh-llm-pi-ai 的 `resolveModelCompat` 透传完整 compat 字段，旧版会丢弃该键）。
+- **new-api / one-api 系网关会拒绝 `developer` 角色**：pi-ai 对未知端点默认判定 `supportsDeveloperRole: true`，会把系统提示转换成 OpenAI o 系列专用的 `role: "developer"`，而 new-api 系网关（国内常见）不认这个角色，直接返回 `400 Format Error`。插件现已自动为 `declared` 路由补 `compat.supportsDeveloperRole: false`（配置里可改成 `true`），无需手动处理。
 - **运行时**：插件启动即生效（写入设置后下一次请求边界生效）；新增/编辑自定义提供方无需重启。已存在的自定义提供方（如 scnet）在插件写入 `reasoningEfforts` 后**无需重启 GUI** 即可看到推理等级——设置文件被 host 热加载。重启 GUI 只用于加载插件本身（保证未来新增的自定义提供方也被自动覆盖）。
 
 ## 工作原理（代码地图）

@@ -1,0 +1,11 @@
+# dsh-custom-provider-reasoning bundle patch
+#
+# Mounts the reasoning-effort enricher into the profile loader. `name` must
+# resolve from the profile node_modules (installed via `dsh plugin --profile
+# <name> add <this package>` or a package.json dependency). Place this bundle
+# AFTER @deepseek-ai/dsh-base (the settings + llm + pi-ai services it leans
+# on come from there); activation is service-availability driven, so order
+# beyond that is cosmetic.
+- insert:
+    - id: dsh-custom-provider-reasoning
+      name: 'dsh-custom-provider-reasoning'

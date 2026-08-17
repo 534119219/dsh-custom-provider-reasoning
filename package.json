@@ -1,0 +1,36 @@
+{
+  "name": "dsh-custom-provider-reasoning",
+  "version": "0.1.4",
+  "description": "思度 — dsh host 插件：让自定义提供方（pi-ai hand-declared routes）的所有模型都能在模型选择器中选取思考强度（reasoning effort），选择经由原厂 pi-ai 适配器真正发往线上。",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "reasoning",
+    "reasoning-effort",
+    "thinking",
+    "custom-provider",
+    "思考强度"
+  ],
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "dependencies": {
+    "@deepseek-ai/schemastery": "^3.18.1",
+    "@earendil-works/pi-ai": "^0.82.1"
+  },
+  "license": "MIT"
+}

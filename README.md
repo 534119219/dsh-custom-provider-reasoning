@@ -99,6 +99,7 @@ llm-pi-ai:
     maxTokens: 384000      # 缺 maxTokens 的模型补这个值；设 false 则不补
     contextWindow: 1000000 # 缺 contextWindow 的模型补这个值；设 false 则不补
     thinkingFormat: false    # 默认 false 不写 thinkingFormat；确需 DeepSeek 方言时改成 deepseek
+    defaultEffort: medium    # 路由级默认推理等级（profile.reasoning）：路由未声明时写入，已有值不覆盖；设 false 则不管
     levels:
       off:                 # 留空 = 支持但不发送任何内容（端点用自己的默认）
       low: low
@@ -112,6 +113,8 @@ llm-pi-ai:
 `maxTokens` / `contextWindow` 只在对应字段**缺失**时回填，已手写的值永不被覆盖；默认值 384000 / 1000000 对齐 DeepSeek V4 官方规格。若你的自定义提供方是其他模型（上限更低），可在此调低；设 `false` 则完全不碰该字段。
 
 `thinkingFormat` 控制路由级 `compat.thinkingFormat` 的管理：默认 `false`（**不写** thinkingFormat，因为 dsh 对每次写入都做可用性校验，残留的 thinkingFormat 会让「切协议」这一写入本身先被拒绝，插件来不及清理）；非 `openai-completions` 协议下始终自动剥离 completions 专属的 `thinkingFormat` / `supportsReasoningEffort`。只有端点确实需要 DeepSeek 的 `thinking` 参数时，才把它设成 `deepseek`（或 `qwen`/`together` 等）。
+
+`defaultEffort` 管理路由级默认推理等级（`profile.reasoning` → 模型的 `defaultEffort`）：默认 `medium`，即新自定义提供方的模型在未显式选等级时使用 Medium、选择器预选 Medium（且不再显示「Default」选项）。只在路由**未声明**时写入，已有值永不被覆盖；设 `false` 关闭该管理。
 
 ## 注意事项
 

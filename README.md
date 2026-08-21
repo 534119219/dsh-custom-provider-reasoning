@@ -100,7 +100,7 @@ llm-pi-ai:
     maxTokens: 384000      # 缺 maxTokens 的模型补这个值；设 false 则不补
     contextWindow: 1000000 # 缺 contextWindow 的模型补这个值；设 false 则不补
     thinkingFormat: false    # 默认 false 不写 thinkingFormat；确需 DeepSeek 方言时改成 deepseek
-    defaultEffort: medium    # 路由级默认推理等级（profile.reasoning）：路由未声明时写入，已有值不覆盖；设 false 则不管
+    defaultEffort: max       # 路由级默认推理等级（profile.reasoning）：路由未声明时写入，已有值不覆盖；设 false 则不管
     supportsDeveloperRole: false  # 自动为 declared 路由补 compat.supportsDeveloperRole；false=补 false（new-api 网关安全），true=补 true
     levels:
       off:                 # 留空 = 支持但不发送任何内容（端点用自己的默认）
@@ -116,7 +116,7 @@ llm-pi-ai:
 
 `thinkingFormat` 控制路由级 `compat.thinkingFormat` 的管理：默认 `false`（**不写** thinkingFormat，因为 dsh 对每次写入都做可用性校验，残留的 thinkingFormat 会让「切协议」这一写入本身先被拒绝，插件来不及清理）；非 `openai-completions` 协议下始终自动剥离 completions 专属的 `thinkingFormat` / `supportsReasoningEffort`。只有端点确实需要 DeepSeek 的 `thinking` 参数时，才把它设成 `deepseek`（或 `qwen`/`together` 等）。
 
-`defaultEffort` 管理路由级默认推理等级（`profile.reasoning` → 模型的 `defaultEffort`）：默认 `medium`，即新自定义提供方的模型在未显式选等级时使用 Medium、选择器预选 Medium（且不再显示「Default」选项）。只在路由**未声明**时写入，已有值永不被覆盖；设 `false` 关闭该管理。
+`defaultEffort` 管理路由级默认推理等级（`profile.reasoning` → 模型的 `defaultEffort`）：默认 `max`，即新自定义提供方的模型在未显式选等级时使用 Max、选择器预选 Max（且不再显示「Default」选项）。只在路由**未声明**时写入，已有值永不被覆盖；设 `false` 关闭该管理。
 
 `supportsDeveloperRole` 控制 `compat.supportsDeveloperRole` 的自动回填：默认 `false`，即对 `declared` 路由在 `openai-completions` 下自动补 `supportsDeveloperRole: false`（让系统提示走 `system` 角色，new-api/one-api 网关安全）；设 `true` 则补 `true`（适用于真正支持 OpenAI `developer` 角色的端点）。只在字段**缺失**时写入，已手写的值永不被覆盖。
 

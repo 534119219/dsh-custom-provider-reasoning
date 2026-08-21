@@ -1,7 +1,7 @@
 {
   "name": "dsh-custom-provider-reasoning",
-  "version": "0.1.9",
-  "description": "dsh host 插件：让自定义提供方（pi-ai hand-declared routes）的所有模型都能在模型选择器中选取思考强度（reasoning effort），自动回填缺失的 maxTokens/contextWindow，管理路由级默认推理等级（默认 medium），并按协议类型（openai-completions / openai-responses / anthropic-messages）管理路由 compat（自动补 supportsDeveloperRole: false、默认不写 thinkingFormat、剥离失效开关）。",
+  "version": "0.2.0",
+  "description": "dsh host 插件：让自定义提供方（pi-ai hand-declared routes）的所有模型都能在模型选择器中选取思考强度（reasoning effort），自动回填缺失的 maxTokens/contextWindow，管理路由级默认推理等级（默认 max），并按协议类型（openai-completions / openai-responses / anthropic-messages）管理路由 compat（自动补 supportsDeveloperRole: false、默认不写 thinkingFormat、剥离失效开关）。",
   "keywords": [
     "dsh",
     "dsh-plugin",

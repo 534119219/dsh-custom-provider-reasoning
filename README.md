@@ -12,7 +12,7 @@ dsh host 插件：让**自定义提供方**（GUI「添加自定义提供方」�
 
 ## 插件做什么
 
-在支持的原厂配置缝上补齐缺口：每当 `llm-pi-ai` 设置变化或适配器目录发布时，插件自动为每个**合格模型条目**写入 `reasoningEfforts`（默认 `off / low / medium / high`，wire 拼写与等级同名——OpenAI 兼容端点标准词汇），并**补齐缺失的 `maxTokens`（默认 384000）与 `contextWindow`（默认 1000000）**——因为手写路由在 pi-ai 目录里没有对应条目，不补的话 dsh 会回落到 32768 的保守输出上限，DeepSeek V4 这类思考模型光推理输出就会顶满截断。
+在支持的原厂配置缝上补齐缺口：每当 `llm-pi-ai` 设置变化或适配器目录发布时，插件自动为每个**合格模型条目**写入 `reasoningEfforts`（默认 `off / low / medium / high / xhigh / max`，wire 拼写与等级同名——OpenAI 兼容端点标准词汇），并**补齐缺失的 `maxTokens`（默认 384000）与 `contextWindow`（默认 1000000）**——因为手写路由在 pi-ai 目录里没有对应条目，不补的话 dsh 会回落到 32768 的保守输出上限，DeepSeek V4 这类思考模型光推理输出就会顶满截断。
 
 插件还**感知协议类型**，自动管理路由级 `compat`：
 
@@ -37,7 +37,7 @@ dsh host 插件：让**自定义提供方**（GUI「添加自定义提供方」�
 
 \* 三个字段**独立判断**：`reasoningEfforts` 手写值始终权威，`maxTokens`/`contextWindow` 只在字段缺失时才补，已有值永不被覆盖。
 
-\* 唯一例外：恰好等于**内置默认字典**（`off/low/medium/high`）的 `reasoningEfforts` 只可能是插件自己写的，因此会在配置的 `levels` 变化时被自动刷新为新配置——这样在 patch 里调高 `levels` 能覆盖到插件已经处理过的提供方，而用户手写的配置始终权威。
+\* 唯一例外：恰好等于**内置默认字典**（`off/low/medium/high/xhigh/max`）的 `reasoningEfforts` 只可能是插件自己写的，因此会在配置的 `levels` 变化时被自动刷新为新配置——这样在 patch 里调高 `levels` 能覆盖到插件已经处理过的提供方，而用户手写的配置始终权威。
 
 注入是**幂等**的：模型一旦被覆盖就不再写入，不会与设置 UI 打架，也不会循环。
 
@@ -107,6 +107,7 @@ llm-pi-ai:
       low: low
       medium: medium
       high: high
+      xhigh: xhigh
       max: max
 ```
 

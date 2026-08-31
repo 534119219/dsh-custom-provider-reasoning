@@ -121,6 +121,29 @@ llm-pi-ai:
 
 `supportsDeveloperRole` 控制 `compat.supportsDeveloperRole` 的自动回填：默认 `false`，即对 `declared` 路由在 `openai-completions` 下自动补 `supportsDeveloperRole: false`（让系统提示走 `system` 角色，new-api/one-api 网关安全）；设 `true` 则补 `true`（适用于真正支持 OpenAI `developer` 角色的端点）。只在字段**缺失**时写入，已手写的值永不被覆盖。
 
+## Anthropic Messages 获取模型补丁
+
+当前 `dsh-llm-pi-ai` 的“获取可用模型”默认只读取 `openai-completions` / `openai-responses` 的 `/models`，因此 `anthropic-messages` 会提示必须手填模型。本仓库附带一个幂等补丁脚本，为其增加 Anthropic 风格 `/v1/models` 支持，同时保持 OpenAI 路径不变：
+
+```bash
+npm run patch:anthropic-discovery
+```
+
+脚本会自动探测 profile Junction / 全局 dsh 安装路径，也可显式传入目标文件：
+
+```bash
+node scripts/patch-anthropic-model-discovery.mjs "C:\\path\\to\\@deepseek-ai\\dsh-llm-pi-ai\\lib\\index.js"
+```
+
+行为：
+
+- `anthropic-messages` 加入可发现协议；
+- baseURL 不以 `/v1` 结尾时探测 `/v1/models`，已以 `/v1` 结尾时探测 `/models`；
+- Anthropic 探测同时发送 `Authorization: Bearer` 与 `x-api-key`；
+- 每次写入前生成 `.bak-anthropic-discovery-*` 备份；重复执行为安全 no-op；若上游代码结构变化则拒绝修改。
+
+补丁改的是已安装的 dsh 核心包，不是本插件运行逻辑。`pnpm install` / dsh 升级可能覆盖它，覆盖后重新运行脚本并重启 dsh（或热重载 `dsh-llm-pi-ai`）。
+
 ## 注意事项
 
 - **端点兼容性**：默认按 OpenAI 兼容 `reasoning_effort` 词汇注入。若端点不认 `reasoning_effort`，请求可能报错——这时可以在 `settings.yaml` 里把该模型的 `reasoningEfforts` 改成端点支持的拼写，或直接设 `reasoningEfforts: false` 关闭（插件不会覆盖显式声明）。
